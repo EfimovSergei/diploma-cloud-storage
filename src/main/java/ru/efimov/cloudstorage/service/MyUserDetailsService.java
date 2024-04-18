@@ -12,8 +12,8 @@ import ru.efimov.cloudstorage.repository.UserRepository;
 import java.util.Optional;
 
 @Service
-
 public class MyUserDetailsService implements UserDetailsService {
+    @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository repository;
@@ -23,11 +23,6 @@ public class MyUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> user = repository.findByUsername(username);
         return user.map(MyUserDetails::new)
-                .orElseThrow(() -> new UsernameNotFoundException(username + "not found"));
-    }
-
-    public void saveUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        repository.save(user);
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("User %s not found", username)));
     }
 }

@@ -2,14 +2,16 @@ package ru.efimov.cloudstorage.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 
 import java.sql.Types;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "storage")
@@ -23,9 +25,6 @@ public class Storage {
     @Column(name = "file_name")
     private String fileName;
 
-    @Column(name = "file_size")
-    private Long fileSize;
-
     @JdbcTypeCode(Types.BINARY)
     @Column(name = "file_content")
     private byte[] fileContent;
@@ -34,6 +33,10 @@ public class Storage {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Storage(String filename, long size, byte[] bytes, User user) {
+
+    public Storage(String name, byte[] bytes, User user) {
+        this.fileName = name;
+        this.fileContent = bytes;
+        this.user = user;
     }
 }

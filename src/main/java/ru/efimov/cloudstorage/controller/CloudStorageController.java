@@ -2,13 +2,13 @@ package ru.efimov.cloudstorage.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.efimov.cloudstorage.entity.User;
 import ru.efimov.cloudstorage.exception.InputDataException;
@@ -40,38 +40,39 @@ public class CloudStorageController {
         }
     }
 
-//    @DeleteMapping("/file")
-//    public ResponseEntity<?> deleteFile(@RequestParam("filename") String filename) {
-//        User user = getUserFromSecurityContext();
-//        storageService.deleteFile(filename, user);
-//        return ResponseEntity.ok(HttpStatus.OK);
-//    }
-//
-//    @PutMapping(value = "/file")
-//    public ResponseEntity<?> editFileName(@RequestParam("filename") String filename,
-//                                          @RequestBody String editFileName) {
-//        User user = getUserFromSecurityContext();
-//        storageService.editFileName(filename, editFileName, user);
-//        return ResponseEntity.ok(HttpStatus.OK);
-//    }
-//
-//    @GetMapping("/file")
-//    public ResponseEntity<Resource> downloadFile(@RequestParam("filename") String filename) {
-//        User user = getUserFromSecurityContext();
-//        byte[] file = storageService.downloadFile(filename, user);
-//        return ResponseEntity.ok().body(new ByteArrayResource(file));
-//    }
-//
-//    @GetMapping("/list")
-//    public String getAllFiles(@RequestParam("limit") int limit) {
-//        User user = getUserFromSecurityContext();
-//        return storageService.getFileList(limit, user);
-//    }
+    @DeleteMapping("/file")
+    public ResponseEntity<?> deleteFile(@RequestParam("filename") String filename) {
+        User user = getUserFromSecurityContext();
+        storageService.deleteFile(filename, user);
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @PutMapping(value = "/file")
+    public ResponseEntity<?> editFileName(@RequestParam("filename") String filename,
+                                          @RequestBody String editFileName) {
+        User user = getUserFromSecurityContext();
+        storageService.editFileName(filename, editFileName, user);
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @GetMapping("/file")
+    public ResponseEntity<Resource> downloadFile(@RequestParam("filename") String filename) {
+        User user = getUserFromSecurityContext();
+        byte[] file = storageService.downloadFile(filename, user);
+        return ResponseEntity.ok().body(new ByteArrayResource(file));
+    }
+
+    @GetMapping("/list")
+    public String getAllFiles(@RequestParam("limit") int limit) {
+        User user = getUserFromSecurityContext();
+        return storageService.getFileList(limit, user);
+    }
 
     private User getUserFromSecurityContext() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var username = authentication.getName();
-        var user = userRepository.findByUsername("admin");
+//        var user = userRepository.findByUsername("admin");
+        var user = userRepository.findByUsername(username);
         if (user.isPresent()) {
             return user.get();
         } else {

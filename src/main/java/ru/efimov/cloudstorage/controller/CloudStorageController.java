@@ -13,8 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.efimov.cloudstorage.entity.User;
 import ru.efimov.cloudstorage.exception.InputDataException;
 import ru.efimov.cloudstorage.exception.InternalServerException;
-import ru.efimov.cloudstorage.repository.UserRepository;
 import ru.efimov.cloudstorage.service.CloudStorageService;
+import ru.efimov.cloudstorage.service.MyUserDetailsService;
 
 @Slf4j
 @RestController
@@ -22,9 +22,7 @@ import ru.efimov.cloudstorage.service.CloudStorageService;
 public class CloudStorageController {
 
     private final CloudStorageService storageService;
-    private final UserRepository userRepository;
-
-
+    private final MyUserDetailsService userDetailsService;
 
     @PostMapping("/file")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile multipartFile) {
@@ -71,10 +69,12 @@ public class CloudStorageController {
     private User getUserFromSecurityContext() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var username = authentication.getName();
-//        var user = userRepository.findByUsername("admin");
-        var user = userRepository.findByUsername(username);
-        if (user.isPresent()) {
-            return user.get();
+        var user = userDetailsService.loadUserByUsername(username);
+        if (user != null) {
+            User userResult = new User();
+            userResult.setUsername(user.getUsername());
+            userResult.setPassword(user.getPassword());
+            return userResult;
         } else {
             log.error(String.format("User with username %s is not found", username));
             throw new InputDataException(String.format("User with username %s is not found", username));
